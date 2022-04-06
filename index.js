@@ -69,7 +69,6 @@ pool.connect((error_conexion, client, release) => {
                 }
 
                 release();
-                pool.end();
 
             }
             nuevaTransaccion();
@@ -84,11 +83,10 @@ pool.connect((error_conexion, client, release) => {
               const cursor = await client.query(new Cursor(`select * from transacciones where cuenta = ${arg1}`));
               cursor.read(10, (error, rows)=>{
                   console.log(`Registro de transacciones de la cuenta "${arg1}",(MAX 10)`, rows);
-                  cursor.close()  
-              })
-
-              release();
-              pool.end();
+                  cursor.close()   
+                  //Se tomo en cuenta las recomendaciones y se optimizo el codigo
+                  release();
+              })  
             }
 
             consultaTrans();
@@ -104,9 +102,8 @@ pool.connect((error_conexion, client, release) => {
                 cursor.read(1,(error, rows) =>{
                     console.log(`Saldo de la cuenta "${arg1}": \n`,rows);
                     cursor.close();
+                    release();
                 })
-                release();
-                pool.end();
             }
             consultaSaldo();
         }
@@ -114,5 +111,6 @@ pool.connect((error_conexion, client, release) => {
     } catch (error) {
         console.log("Error en la consulta ", error);
     }
+    pool.end();
 }
 });
